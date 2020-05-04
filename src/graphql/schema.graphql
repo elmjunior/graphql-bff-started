@@ -1,0 +1,6 @@
+scalar Date
+scalar Upload
+
+type Query {
+  listUsers: [User]
+}
