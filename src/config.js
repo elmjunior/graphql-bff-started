@@ -7,24 +7,21 @@ const config = {
     root: path.join(__dirname, '..'),
     port: process.env.PORT || 3000,
 
-    jwtSecret: 'somma@biorc',
+    jwtSecret: 'app@graphql',
     PLAYGROUND: process.env.PLAYGROUND,
     APOLLO_ENGINE_KEY: 'service:vcrzy:nLh0HDK4L62klIn9sqCaRg',
     aws: {
-      accessKeyId: 'AKIAIA3XHMLPC4WIWE7A',
-      secretAccessKey: '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',
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET,
       s3: {
-        bucket: 'kiper-avatar',
-        region: 'us-east-2',
-      },
-      cloudfront: {
-        distributionId: 'E2JAVIN2VA7YVM',
+        bucket: process.env.AWS_BUCKET,
+        region: process.env.AWS_REGION,
       },
     },
   },
-
 };
 
-module.exports = Object.freeze(
-  { ...config.commons, ...config[config.commons.env] },
-);
+module.exports = Object.freeze({
+  ...config.commons,
+  ...config[config.commons.env],
+});

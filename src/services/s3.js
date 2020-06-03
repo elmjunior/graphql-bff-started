@@ -1,6 +1,5 @@
 const { S3 } = require('aws-sdk');
 const { aws } = require('../config');
-const { invalidate } = require('./cloudfront');
 
 const s3 = new S3({
   accessKeyId: aws.accessKeyId,
@@ -9,7 +8,7 @@ const s3 = new S3({
 });
 
 exports.uploadAvatar = async function uploadAvatar({ path, avatar, mimetype }) {
-  const [uploaded, invalidated] = await Promise.all([
+  const [uploaded] = await Promise.all([
     s3
       .upload({
         Key: path,
@@ -19,13 +18,17 @@ exports.uploadAvatar = async function uploadAvatar({ path, avatar, mimetype }) {
         ACL: 'public-read',
       })
       .promise(),
-    invalidate(`/${encodeURIComponent(path)}`).catch(e => e),
   ]);
 
   return uploaded;
 };
 
-exports.upload = async ({ path, file, mimetype, bucket = 'kiper-app' }) => {
+exports.upload = async ({
+  path,
+  file,
+  mimetype,
+  bucket = process.env.AWS_BUCKET,
+}) => {
   const res = await s3
     .upload({
       Key: path,
@@ -39,12 +42,14 @@ exports.upload = async ({ path, file, mimetype, bucket = 'kiper-app' }) => {
   return res;
 };
 
-exports.removeObjects = async ({ paths, bucket = 'kiper-app' }) => {
+exports.removeObjects = async ({ paths, bucket = process.env.AWS_BUCKET }) => {
   const res = await s3
     .deleteObjects({
       Bucket: bucket,
       Delete: {
-        Objects: paths.map(x => ({ Key: x.replace(`https://${bucket}.s3.amazonaws.com/`, '') })),
+        Objects: paths.map((x) => ({
+          Key: x.replace(`https://${bucket}.s3.amazonaws.com/`, ''),
+        })),
       },
     })
     .promise();
